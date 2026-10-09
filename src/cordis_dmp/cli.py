@@ -66,10 +66,12 @@ def main(argv=None) -> None:
     if args.command in ("download", "all"):
         dl.download_all(args.data_dir, workers=args.workers, delay=args.delay, limit=args.limit,
                         domains=getattr(args, "domains", None),
-                        latest_only=getattr(args, "latest_only", False))
+                        latest_only=getattr(args, "latest_only", False),
+                        programmes=args.programmes)
     if args.command == "extract":
         from . import extract as ex
-        ex.extract_all(args.data_dir, domains=args.domains, latest_only=args.latest_only, limit=args.limit)
+        ex.extract_all(args.data_dir, domains=args.domains, latest_only=args.latest_only, limit=args.limit,
+                       programmes=args.programmes)
     if args.command == "template":
         import json as _json
 

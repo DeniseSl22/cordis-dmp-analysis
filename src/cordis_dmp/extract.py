@@ -93,7 +93,7 @@ def extract_pdf(path: Path) -> dict:
 
 
 def extract_all(data_dir: Path, domains=None, latest_only: bool = False,
-                limit: int | None = None) -> None:
+                limit: int | None = None, programmes=None) -> None:
     """Extract every downloaded PDF matching the corpus selection."""
     out_dir = data_dir / "text"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -101,7 +101,8 @@ def extract_all(data_dir: Path, domains=None, latest_only: bool = False,
 
     pdf_index = {p.stem: p for p in (data_dir / "pdfs").rglob("*.pdf")}
     if (data_dir / "corpus.csv").exists():
-        selection = load_corpus_selection(data_dir, domains=domains, latest_only=latest_only)
+        selection = load_corpus_selection(data_dir, domains=domains, latest_only=latest_only,
+                                          programmes=programmes)
         from .download import _safe_name
         ids = [_safe_name(r["id"]) for r in selection]
         targets = [pdf_index[i] for i in ids if i in pdf_index]
@@ -109,7 +110,8 @@ def extract_all(data_dir: Path, domains=None, latest_only: bool = False,
     else:
         if domains or latest_only:
             raise FileNotFoundError("corpus.csv missing — run `cordis-dmp enrich` to use --domains/--latest-only")
-        targets = sorted(pdf_index.values())
+        targets = sorted(p for p in pdf_index.values()
+                         if not programmes or p.parent.name in programmes)
         log.info("No corpus.csv — extracting all %d downloaded PDFs", len(targets))
 
     targets = [p for p in targets if not (out_dir / (p.stem + ".json")).exists()]

@@ -71,6 +71,7 @@ def download_all(
     retries: int = 3,
     domains=None,
     latest_only: bool = False,
+    programmes=None,
 ) -> None:
     """Download every document listed in data/dmp_deliverables.csv.
 
@@ -101,7 +102,8 @@ def download_all(
 
     with open(index_path, newline="", encoding="utf-8") as f:
         rows = [r for r in csv.DictReader(f)
-                if r["id"] not in done and (keep is None or r["id"] in keep)]
+                if r["id"] not in done and (keep is None or r["id"] in keep)
+                and (not programmes or r["programme"] in programmes)]
     if limit:
         rows = rows[:limit]
     log.info("%d documents to download (%d already done)", len(rows), len(done))

@@ -256,8 +256,9 @@ def build_corpus(data_dir: Path, programmes=None, refresh: bool = False) -> Path
     return out_path
 
 
-def load_corpus_selection(data_dir: Path, domains=None, latest_only: bool = False) -> list:
-    """Read corpus.csv applying domain / latest-version filters."""
+def load_corpus_selection(data_dir: Path, domains=None, latest_only: bool = False,
+                          programmes=None) -> list:
+    """Read corpus.csv applying programme / domain / latest-version filters."""
     path = data_dir / "corpus.csv"
     if not path.exists():
         raise FileNotFoundError(f"{path} missing — run `cordis-dmp enrich` first")
@@ -265,6 +266,8 @@ def load_corpus_selection(data_dir: Path, domains=None, latest_only: bool = Fals
     rows = []
     with open(path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
+            if programmes and row["programme"] not in programmes:
+                continue
             if latest_only and row["is_latest"] != "true":
                 continue
             if wanted and not (wanted & set(row["domains"].split("|"))):
